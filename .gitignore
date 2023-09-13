@@ -1,0 +1,39 @@
+# Archivos de compilación
+*.dll
+*.exe
+*.pdb
+
+# Archivos de publicación
+*.publishsettings
+*.pubxml
+*.pubxml.user
+
+# Archivos de configuración
+Web.config
+Web.Debug.config
+Web.Release.config
+
+# Archivos de registro
+*.log
+
+# Directorios de resultados de compilación
+bin/
+obj/
+
+# Otros archivos y directorios generados
+[Vv]iew/[Ss]tate/
+ClientBin/
+packages/
+.vs/
+*.cache
+*.user
+
+# Archivos de prueba
+TestResults/
+
+# Directorio de copias de seguridad
+Backup/
+
+# Archivos temporales
+*~
+*.swp
