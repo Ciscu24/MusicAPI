@@ -37,6 +37,27 @@ namespace Models.Repositories
         #region Métodos públicos
 
         /// <summary>
+        ///     Comprueba si existe algún elemento
+        /// </summary>
+        /// <param name="function">Expresión que define el filtro a aplicar</param>
+        /// <returns></returns>
+        public bool Any(Expression<Func<T, bool>> function = null)
+        {
+            try
+            {
+                if (function != null)
+                    return _dbSet.Any(function);
+                else
+                    return _dbSet.Any();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GenericRepository.Any", ex);
+                throw;
+            }
+        }
+
+        /// <summary>
         ///     Obtiene un objeto "T" de base de datos a través de su Id
         /// </summary>
         /// <param name="id">Id del objeto que se va a obtener</param>
@@ -49,7 +70,7 @@ namespace Models.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError("GenericRepository.Get", ex);
                 throw;
             }
         }
@@ -58,16 +79,24 @@ namespace Models.Repositories
         ///     Obtiene el primer elemento que cumple el filtro de la expresión
         /// </summary>
         /// <param name="filter">Expresión que define el filtro a aplicar</param>
+        /// <param name="includesProperties">Listado de funciones con las propiedades que se dean incluir</param>
         /// <returns></returns>
-        public virtual T GetFirst(Expression<Func<T, bool>> filter)
+        public T GetFirst(Expression<Func<T, bool>> filter, Expression<Func<T, object>>[] includesProperties = null)
         {
             try
             {
-                return _dbSet.FirstOrDefault(filter);
+                if(includesProperties != null)
+                {
+                    var objects = _dbSet.Where(filter);
+                    IncludesProperties(ref objects, includesProperties);
+                    return objects.FirstOrDefault();
+                }
+                else
+                    return _dbSet.FirstOrDefault(filter);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError("GenericRepository.GetFirst", ex);
                 throw;
             }
         }
@@ -75,16 +104,22 @@ namespace Models.Repositories
         /// <summary>
         ///     Obtiene una lista completa
         /// </summary>
+        /// <param name="includesProperties">Listado de funciones con las propiedades que se dean incluir</param>
         /// <returns></returns>
-        public IQueryable<T> GetAll()
+        public IQueryable<T> GetAll(Expression<Func<T, object>>[] includesProperties = null)
         {
             try
             {
-                return _dbSet.AsQueryable();
+                var objects = _dbSet.AsQueryable();
+
+                if (includesProperties != null)
+                    IncludesProperties(ref objects, includesProperties);
+
+                return objects;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError("GenericRepository.GetAll", ex);
                 throw;
             }
         }
@@ -93,19 +128,27 @@ namespace Models.Repositories
         ///     Obtiene el primer elemento que cumple el filtro de la expresión.
         /// </summary>
         /// <param name="filter">Expresión que define el filtro a aplicar</param>
+        /// <param name="includesProperties">Listado de funciones con las propiedades que se dean incluir</param>
         /// <returns></returns>
-        public IQueryable<T> GetAll(Expression<Func<T, bool>> filter = null)
+        public IQueryable<T> GetAll(Expression<Func<T, bool>> filter, Expression<Func<T, object>>[] includesProperties = null)
         {
             try
             {
+                IQueryable<T> objects;
+
                 if (filter != null)
-                    return _dbSet.Where(filter);
+                    objects =  _dbSet.Where(filter);
                 else
-                    return _dbSet;
+                    objects = _dbSet.AsQueryable();
+
+                if(includesProperties != null)
+                    IncludesProperties(ref objects, includesProperties);
+
+                return objects;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError("GenericRepository.GetAll", ex);
                 throw;
             }
         }
@@ -122,7 +165,7 @@ namespace Models.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError("GenericRepository.Add", ex);
                 throw;
             }
         }
@@ -139,7 +182,7 @@ namespace Models.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.StackTrace);
+                _logger.LogError("GenericRepository.Update", ex);
                 throw;
             }
         }
@@ -150,11 +193,44 @@ namespace Models.Repositories
         /// <param name="entity"></param>
         public void Remove(T entity)
         {
-            _dbSet.Remove(entity);
+            try
+            {
+                _dbSet.Remove(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("GenericRepository.Remove", ex);
+                throw;
+            }
         }
 
         #endregion
 
+        #region Métodos privados
+
+        /// <summary>
+        ///     Método que aplica los includes pasados como parámetro al listado de elementos pasado como referencia
+        /// </summary>
+        /// <param name="list">Listado de elementos</param>
+        /// <param name="includesProperties">Includes a aplicar</param>
+        /// <returns></returns>
+        private IQueryable<T> IncludesProperties(ref IQueryable<T> list, Expression<Func<T, object>>[] includesProperties)
+        {
+            try
+            {
+                foreach (var propertie in includesProperties)
+                {
+                    list = list.Include(propertie);
+                }
+                return list;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #endregion
 
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Models.Migrations
 {
     /// <inheritdoc />
@@ -64,30 +66,78 @@ namespace Models.Migrations
                 name: "ArtistsSongs",
                 columns: table => new
                 {
-                    ArtistsId = table.Column<long>(type: "bigint", nullable: false),
-                    SongsId = table.Column<long>(type: "bigint", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ArtistId = table.Column<long>(type: "bigint", nullable: false),
+                    SongId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ArtistsSongs", x => new { x.ArtistsId, x.SongsId });
+                    table.PrimaryKey("PK_ArtistsSongs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ArtistsSongs_Artists_ArtistsId",
-                        column: x => x.ArtistsId,
+                        name: "FK_ArtistsSongs_Artists_ArtistId",
+                        column: x => x.ArtistId,
                         principalTable: "Artists",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ArtistsSongs_Songs_SongsId",
-                        column: x => x.SongsId,
+                        name: "FK_ArtistsSongs_Songs_SongId",
+                        column: x => x.SongId,
                         principalTable: "Songs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_ArtistsSongs_SongsId",
+            migrationBuilder.InsertData(
+                table: "Artists",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1L, "Post Malone" },
+                    { 2L, "Area 21" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Genres",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1L, "Pop" },
+                    { 2L, "Hip-hop" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Songs",
+                columns: new[] { "Id", "Duration", "GenreId", "Quality", "ReleaseDate", "Title" },
+                values: new object[,]
+                {
+                    { 1L, 134, 1L, 0, new DateTime(2023, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified), "Mourning" },
+                    { 2L, 158, 2L, 1, new DateTime(2018, 1, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sunflower" },
+                    { 3L, 147, 1L, 4, new DateTime(2016, 2, 8, 0, 0, 0, 0, DateTimeKind.Unspecified), "Spaceships" },
+                    { 4L, 212, 1L, 2, new DateTime(2019, 7, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "HELP" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "ArtistsSongs",
-                column: "SongsId");
+                columns: new[] { "Id", "ArtistId", "SongId" },
+                values: new object[,]
+                {
+                    { 1L, 1L, 1L },
+                    { 2L, 1L, 2L },
+                    { 3L, 2L, 3L },
+                    { 4L, 1L, 4L },
+                    { 5L, 2L, 4L }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArtistsSongs_ArtistId",
+                table: "ArtistsSongs",
+                column: "ArtistId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ArtistsSongs_SongId",
+                table: "ArtistsSongs",
+                column: "SongId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Songs_GenreId",

@@ -20,11 +20,7 @@ namespace Models.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Relación N:M de Artistas y Canciones
-            modelBuilder.Entity<ArtistModel>()
-                .HasMany(a => a.Songs)
-                .WithMany(s => s.Artists)
-                .UsingEntity(e => e.ToTable("ArtistsSongs"));
+            GenerateDatabase(modelBuilder);
         }
 
         #region Métodos Privados
@@ -34,7 +30,7 @@ namespace Models.Context
             modelBuilder.Entity<GenreModel>().HasData(GenerateGenres());
             modelBuilder.Entity<ArtistModel>().HasData(GenerateArtists());
             modelBuilder.Entity<SongModel>().HasData(GenerateSongs());
-            //modelBuilder.Entity<Dictionary<string, object>>().HasData(GenerateArtistsSongs());
+            modelBuilder.Entity<ArtistSongModel>().HasData(GenerateArtistsSongs());
         }
 
         private static GenreModel[] GenerateGenres()
@@ -65,15 +61,15 @@ namespace Models.Context
 
         }
 
-        private static Dictionary<string, object>[] GenerateArtistsSongs()
+        private static ArtistSongModel[] GenerateArtistsSongs()
         {
             return new[]
             {
-                new Dictionary<string, object> { { "ArtistId", 1 }, { "SongId", 1 } },
-                new Dictionary<string, object> { { "ArtistId", 1 }, { "SongId", 2 } },
-                new Dictionary<string, object> { { "ArtistId", 2 }, { "SongId", 3 } },
-                new Dictionary<string, object> { { "ArtistId", 1 }, { "SongId", 4 } },
-                new Dictionary<string, object> { { "ArtistId", 2 }, { "SongId", 4 } }
+                new ArtistSongModel { Id = 1, ArtistId = 1, SongId = 1 },
+                new ArtistSongModel { Id = 2, ArtistId = 1, SongId = 2 },
+                new ArtistSongModel { Id = 3, ArtistId = 2, SongId = 3 },
+                new ArtistSongModel { Id = 4, ArtistId = 1, SongId = 4 },
+                new ArtistSongModel { Id = 5, ArtistId = 2, SongId = 4 }
             };
         }
 

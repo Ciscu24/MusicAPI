@@ -35,6 +35,8 @@ namespace Models.UnitsOfWork
 
         public GenericRepository<SongModel> SongsRepository { get; set; }
 
+        public GenericRepository<ArtistSongModel> ArtistsSongsRepository { get; set; }
+
         #endregion
 
         #region Constructores
@@ -49,6 +51,7 @@ namespace Models.UnitsOfWork
             ArtistsRepository = new GenericRepository<ArtistModel>(_context, _logger);
             GenresRepository = new GenericRepository<GenreModel>(_context, _logger);
             SongsRepository = new GenericRepository<SongModel>(_context, _logger);
+            ArtistsSongsRepository = new GenericRepository<ArtistSongModel>(_context, _logger);
 
             #endregion
         }

@@ -2,12 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Models.Context;
 using Models.UnitsOfWork;
 using Serilog;
+using Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -25,6 +26,15 @@ builder.Services.AddSingleton(typeof(Microsoft.Extensions.Logging.ILogger), logg
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnect")));
 builder.Services.AddScoped<UnitOfWork>();
+
+#endregion
+
+#region Inyección de dependecias de los servicios
+
+builder.Services.AddScoped<IArtistsService, ArtistsService>();
+builder.Services.AddScoped<ISongsService, SongsService>();
+builder.Services.AddScoped<IGenresService, GenresService>();
+builder.Services.AddScoped<IArtistsSongsService, ArtistsSongsService>();
 
 #endregion
 
