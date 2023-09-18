@@ -11,5 +11,11 @@ namespace Common.Dtos.Generic
         public object Id { get; set; }
 
         public List<string> Errors { get; set; }
+
+        public CreateEditRemoveResponseDto() 
+        {
+            Id = null;
+            Errors = new List<string>();
+        }
     }
 }

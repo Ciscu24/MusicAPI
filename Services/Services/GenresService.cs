@@ -18,6 +18,7 @@ namespace Services.Services
         /// <summary>
         ///     Obtiene todos los géneros musicales
         /// </summary>
+        /// <param name="includes"></param>
         /// <returns></returns>
         Task<IEnumerable<GenreDto>> GetAll(Expression<Func<GenreModel, object>>[] includes = null);
 
@@ -64,6 +65,7 @@ namespace Services.Services
         /// <summary>
         ///     Obtiene todos los géneros musicales
         /// </summary>
+        /// <param name="includes"></param>
         /// <returns></returns>
         public async Task<IEnumerable<GenreDto>> GetAll(Expression<Func<GenreModel, object>>[] includes = null)
         {
@@ -205,7 +207,7 @@ namespace Services.Services
         /// <param name="genre"></param>
         /// <param name="isEdit"></param>
         /// <returns></returns>
-        public async Task<List<string>> CheckErrors(GenreCreateEditDto genre, bool isEdit) 
+        private async Task<List<string>> CheckErrors(GenreCreateEditDto genre, bool isEdit) 
         {
             try
             {
@@ -217,7 +219,7 @@ namespace Services.Services
                     {
                         var genereModel = await Task.FromResult(_unitOfWork.GenresRepository.Get(genre.Id));
                         if (genereModel == null)
-                            response.Add("No existe ningun género musical con el Id: " + genre.Id);
+                            response.Add("No existe ningún género musical con el Id: " + genre.Id);
                     }
                         
                     // Comprobamos si hay algún género con ese nombre
@@ -241,7 +243,7 @@ namespace Services.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<List<string>> CheckRemoveErrors(long id)
+        private async Task<List<string>> CheckRemoveErrors(long id)
         {
             try
             {
@@ -255,7 +257,7 @@ namespace Services.Services
                         response.Add("Existen canciones con ese género musical");
                 }
                 else
-                    response.Add("No existe ningun género musical con el Id: " + id);
+                    response.Add("No existe ningún género musical con el Id: " + id);
 
                 return response;
             }

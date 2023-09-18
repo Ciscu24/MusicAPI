@@ -18,8 +18,16 @@ namespace Services.Services
         /// <summary>
         ///     Obtiene todas las canciones
         /// </summary>
+        /// <param name="includes"></param>
         /// <returns></returns>
         Task<IEnumerable<SongDto>> GetAll(Expression<Func<SongModel, object>>[] includes = null);
+
+        /// <summary>
+        ///     Obtiene todas las canciónes de un artista
+        /// </summary>
+        /// <param name="artistId"></param>
+        /// <returns></returns>
+        Task<IEnumerable<SongDto>> GetAllByArtistId(long artistId);
 
         /// <summary>
         ///     Obtiene una canción
@@ -31,16 +39,16 @@ namespace Services.Services
         /// <summary>
         ///     Crea una canción en BBDD
         /// </summary>
-        /// <param name="genre"></param>
+        /// <param name="song"></param>
         /// <returns></returns>
-        Task<CreateEditRemoveResponseDto> Create(SongCreateEditDto genre);
+        Task<CreateEditRemoveResponseDto> Create(SongCreateEditDto song);
 
         /// <summary>
         ///     Edita una canción de la BBDD
         /// </summary>
-        /// <param name="genre"></param>
+        /// <param name="song"></param>
         /// <returns></returns>
-        Task<CreateEditRemoveResponseDto> Update(SongCreateEditDto genre);
+        Task<CreateEditRemoveResponseDto> Update(SongCreateEditDto song);
 
         /// <summary>
         ///     Elimina una canción de la BBDD
@@ -64,6 +72,7 @@ namespace Services.Services
         /// <summary>
         ///     Obtiene todas las canciones
         /// </summary>
+        /// <param name="includes"></param>
         /// <returns></returns>
         public async Task<IEnumerable<SongDto>> GetAll(Expression<Func<SongModel, object>>[] includes = null)
         {
@@ -75,6 +84,27 @@ namespace Services.Services
             catch (Exception ex)
             {
                 _logger.LogError("SongsService.GetAll", ex);
+                throw;
+            }
+        }
+
+        /// <summary>
+        ///     Obtiene todas las canciónes de un artista
+        /// </summary>
+        /// <param name="artistId"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<SongDto>> GetAllByArtistId(long artistId)
+        {
+            try
+            {
+                var response = await Task.FromResult(_unitOfWork.ArtistsSongsRepository.GetAll(g => g.ArtistId == artistId,
+                    new Expression<Func<ArtistSongModel, object>>[] { a => a.Song }));
+                return response.Select(s => s.Song.ToDto(false));
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("SongsService.GetAllByArtistId", ex);
                 throw;
             }
         }
@@ -210,10 +240,10 @@ namespace Services.Services
         /// <summary>
         ///     Comprueba si hay errores en el Dto de la canción
         /// </summary>
-        /// <param name="genre"></param>
+        /// <param name="song"></param>
         /// <param name="isEdit"></param>
         /// <returns></returns>
-        public async Task<List<string>> CheckErrors(SongCreateEditDto song, bool isEdit)
+        private async Task<List<string>> CheckErrors(SongCreateEditDto song, bool isEdit)
         {
             try
             {
@@ -249,7 +279,7 @@ namespace Services.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<List<string>> CheckRemoveErrors(long id)
+        private async Task<List<string>> CheckRemoveErrors(long id)
         {
             try
             {
